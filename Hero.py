@@ -10,18 +10,40 @@ class Hero:
         self.name = name
         self.player = player
         self.screen = screen
+        self.disp = None
         try:
             self.img = pygame.image.load(name.lower().replace(" ", "") + ".png")
-            self.stunimg = pygame.image.load(name.lower().replace(" ", "") + "stun.png")
-            self.blockimg = pygame.image.load(name.lower().replace(" ", "") + "block.png")
-            self.atksnd = pygame.mixer.Sound(name.lower().replace(" ", "") + "atk.wav")
-            self.atksnd2 = pygame.mixer.Sound(name.lower().replace(" ", "") + "atk2.wav")
-            self.atkwoosh = pygame.mixer.Sound(name.lower().replace(" ", "") + "atkwoosh.wav")
-            self.runatkwoosh = pygame.mixer.Sound(name.lower().replace(" ", "") + "runatkwoosh.wav")
-            self.countersnd = pygame.mixer.Sound(name.lower().replace(" ", "") + "counter.wav")
-            self.confuse = pygame.mixer.Sound("confuse.wav")
         except:
             pass
+        try:
+            self.stunimg = pygame.image.load(name.lower().replace(" ", "") + "stun.png")
+        except:
+            pass
+        try:
+            self.blockimg = pygame.image.load(name.lower().replace(" ", "") + "block.png")
+        except:
+            pass
+        try:
+            self.atksnd = pygame.mixer.Sound("fisty" + "atk.wav")
+        except:
+            pass
+        try:
+            self.atksnd2 = pygame.mixer.Sound("fisty" + "atk2.wav")
+        except:
+            pass
+        try:
+            self.atkwoosh = pygame.mixer.Sound("fisty" + "atkwoosh.wav")
+        except:
+            pass
+        try:
+            self.runatkwoosh = pygame.mixer.Sound("fisty" + "runatkwoosh.wav")
+        except:
+            pass
+        try:
+            self.countersnd = pygame.mixer.Sound("fisty" + "counter.wav")
+        except:
+            pass
+        self.confuse = pygame.mixer.Sound("confuse.wav")
         self.width = self.img.get_width()
         self.height = self.img.get_height()
         self.cx = self.x + self.width/2
@@ -224,9 +246,9 @@ class Hero:
             self.hitx = self.hitx - self.hitx/abs(self.hitx)/2
         if self.hity != 0:
             self.hity = self.hity - self.hity/abs(self.hity)/2
-        self.hitbox = pygame.Rect(self.x, self.y, self.width, self.height)
-        self.cx = self.x + self.width / 2
+        self.cx = self.x - (self.disp.get_width() - 100 if self.flip else 0) + self.width / 2
         self.cy = self.y + self.height / 2
+        self.hitbox = pygame.Rect(self.cx - self.width / 2, self.cy - self.height / 2, self.width, self.height)
         if self.blockopp is not None and not self.hitbox.colliderect(self.blockopp.hitbox):
             self.blockopp = None
         if self.blocking and pygame.time.get_ticks() - self.blockStart + self.blockTime > 5000:
@@ -272,33 +294,31 @@ class Hero:
                     and p - self.blockattackStart > 400:
                 self.flip = True
         if self.stun:
-            self.screen.blit(pygame.transform.flip(self.stunimg, self.flip, False),
+            self.disp = (pygame.transform.flip(self.stunimg, self.flip, False),
                              (self.x, self.y))
         elif p - self.attackStart < 400:
-            self.screen.blit(pygame.transform.flip(self.attackAnim[int(
-                (p - self.attackStart) / 400 * len(self.attackAnim))], self.flip, False),
-                             (self.x, self.y))
+            self.disp = (pygame.transform.flip(self.attackAnim[int(
+                (p - self.attackStart) / 400 * len(self.attackAnim))], self.flip, False))
         elif p - self.runattackStart < 600:
-            self.screen.blit(pygame.transform.flip(self.runattackAnim[int(
-                (p - self.runattackStart) / 600 * len(self.runattackAnim))], self.flip, False),
-                             (self.x, self.y))
+            self.disp = (pygame.transform.flip(self.runattackAnim[int(
+                (p - self.runattackStart) / 600 * len(self.runattackAnim))], self.flip, False))
         elif p - self.jumpattackStart < 400:
-            self.screen.blit(pygame.transform.flip(self.jumpattackAnim[int(
-                (p - self.jumpattackStart) / 400 * len(self.jumpattackAnim))], self.flip, False),
-                             (self.x, self.y))
+            self.disp = (pygame.transform.flip(self.jumpattackAnim[int(
+                (p - self.jumpattackStart) / 400 * len(self.jumpattackAnim))], self.flip, False))
         elif p - self.blockattackStart < 400:
-            self.screen.blit(pygame.transform.flip(self.blockattackAnim[int(
-                (p - self.blockattackStart) / 400 * len(self.blockattackAnim))], self.flip, False),
-                             (self.x, self.y))
+            self.disp = (pygame.transform.flip(self.blockattackAnim[int(
+                (p - self.blockattackStart) / 400 * len(self.blockattackAnim))], self.flip, False))
         elif self.blocking:
-            self.screen.blit(pygame.transform.flip(self.blockimg, self.flip, False), (self.x, self.y))
+            self.disp = (pygame.transform.flip(self.blockimg, self.flip, False))
         elif self.xspd != 0 or self.left or self.right:
-            self.screen.blit(pygame.transform.flip(self.walkAnim[int(
+            self.disp = (pygame.transform.flip(self.walkAnim[int(
                 (p - self.walkStart) / 400 * len(self.walkAnim)) % len(self.walkAnim)],
-                                                   self.flip, False), (self.x, self.y))
+                                                   self.flip, False))
         else:
-            self.screen.blit(pygame.transform.flip(self.img, self.flip, False), (self.x, self.y))
-
+            self.disp = (pygame.transform.flip(self.img, self.flip, False))
+        self.height = self.disp.get_height()
+        self.width = self.disp.get_width()
+        self.screen.blit(self.disp, (self.x - (self.disp.get_width() - 100 if self.flip else 0), self.y))
         if self.player:
             pygame.draw.circle(self.screen, (255, 0, 0), (self.cx, self.y - 50), 20)
 

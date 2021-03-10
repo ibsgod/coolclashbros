@@ -8,6 +8,8 @@ class Swordy(Hero):
     def __init__(self, x, y, screen, player):
         super().__init__(x, y, "Swordy", 10, 15, screen, player)
         self.hit = []
+        self.moved = False
+        self.leftatkmove = False
 
     def checkAttacks(self):
         if pygame.time.get_ticks() - self.attackStart < 400 and pygame.time.get_ticks() - self.attackStart > 200:
@@ -70,10 +72,31 @@ class Swordy(Hero):
         else:
             self.hit.clear()
     def extra(self):
-        if self.blocking and self.touchGround is not None:
-            self.height = 100
-        elif self.stun:
-            self.height = 160
-        else:
-            self.height = 110
+        # if pygame.time.get_ticks() - self.jumpattackStart < 400 and not self.moved:
+        #     self.height = 160
+        #     self.width = 160
+        #     self.x -= 30
+        #     self.y -= 30
+        #     self.moved = True
+        # elif pygame.time.get_ticks() - self.jumpattackStart >= 400 and self.moved:
+        #     self.moved = False
+        #     self.x += 30
+        #     self.y += 30
+        #     self.width = 100
+        #     self.height = 110
+        # elif pygame.time.get_ticks() - self.jumpattackStart < 400:
+        #     pass
+        # elif pygame.time.get_ticks() - self.attackStart < 400 and self.flip and not self.leftatkmove:
+        #     self.x -= 60
+        #     self.leftatkmove = True
+        #
+        # elif self.blocking:
+        #     self.height = 100
+        # elif self.stun:
+        #     self.height = 160
+        # else:
+        #     self.height = 110
+        #     self.width = 100
+        if self.touchGround is not None:
+            self.y = self.touchGround.y - self.height
 

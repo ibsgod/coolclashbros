@@ -32,6 +32,7 @@ while True:
     textx = 100
     for i in Info.heroes:
         i.draw()
+        # pygame.draw.rect(screen, (255, 0, 0), i.hitbox, width=5)
         screen.blit(Info.hpText[i],(textx, 50))
         textx += 100
 
