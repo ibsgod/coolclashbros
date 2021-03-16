@@ -11,6 +11,7 @@ class Hero:
         self.player = player
         self.screen = screen
         self.disp = None
+        self.projectiles = []
         try:
             self.img = pygame.image.load(name.lower().replace(" ", "") + ".png")
         except:
@@ -55,7 +56,7 @@ class Hero:
         self.right = False
         self.xspd = 0
         self.yspd = 0
-        self.accel = 1 if player else 2
+        self.accel = 1 if player == 0 else 2
         self.jumping = False
         self.flip = False
         self.walkStart = 0
@@ -158,9 +159,9 @@ class Hero:
         if rand:
             max = 4
             r = random.randint(1, max)
-            if r <= (max/2 if self.xspd < 0 else 1) and self.x > 200:
+            if r <= (max/2 if self.xspd < 0 else 1) and self.x - self.xspd*3> 200:
                 self.left = True
-            elif r > max/2 and r <= (max if self.xspd > 0 else max/2+1) and self.x + self.width < 1100:
+            elif r > max/2 and r <= (max if self.xspd > 0 else max/2+1) and self.x + self.width + self.xspd*3< 1100:
                 self.right = True
             if random.randint(1, 100) == 1:
                 self.jumping = True
@@ -203,9 +204,11 @@ class Hero:
                     self.runatkwoosh.play()
 
     def tick(self, events):
-        if self.player and pygame.time.get_ticks() - self.stunStart > 3000:
+        if self.player == 0 and pygame.time.get_ticks() - self.stunStart > 3000:
             self.register(events)
-        elif not self.player:
+        elif self.player == 2:
+            self.compute(True)
+        elif self.player == 3:
             self.compute(False)
             pass
         if pygame.time.get_ticks() - self.stunStart > 3000 and self.stun:
@@ -246,7 +249,7 @@ class Hero:
             self.hitx = self.hitx - self.hitx/abs(self.hitx)/2
         if self.hity != 0:
             self.hity = self.hity - self.hity/abs(self.hity)/2
-        self.cx = self.x - (self.disp.get_width() - 100 if self.flip else 0) + self.width / 2
+        self.cx = self.x
         self.cy = self.y + self.height / 2
         self.hitbox = pygame.Rect(self.cx - self.width / 2, self.cy - self.height / 2, self.width, self.height)
         if self.blockopp is not None and not self.hitbox.colliderect(self.blockopp.hitbox):
@@ -269,12 +272,10 @@ class Hero:
         if pygame.time.get_ticks() - self.stunStart > 3000 and not self.blocking and pygame.time.get_ticks() - self.blockRegen > 100:
             self.blockTime = max(self.blockTime - 50, 0)
             self.blockRegen = pygame.time.get_ticks()
-        self.extra()
+        if self.touchGround is not None:
+            self.y = self.touchGround.y - self.height
 
     def checkAttacks(self):
-        pass
-
-    def extra(self):
         pass
 
     def draw(self):
@@ -294,8 +295,7 @@ class Hero:
                     and p - self.blockattackStart > 400:
                 self.flip = True
         if self.stun:
-            self.disp = (pygame.transform.flip(self.stunimg, self.flip, False),
-                             (self.x, self.y))
+            self.disp = (pygame.transform.flip(self.stunimg, self.flip, False))
         elif p - self.attackStart < 400:
             self.disp = (pygame.transform.flip(self.attackAnim[int(
                 (p - self.attackStart) / 400 * len(self.attackAnim))], self.flip, False))
@@ -318,8 +318,8 @@ class Hero:
             self.disp = (pygame.transform.flip(self.img, self.flip, False))
         self.height = self.disp.get_height()
         self.width = self.disp.get_width()
-        self.screen.blit(self.disp, (self.x - (self.disp.get_width() - 100 if self.flip else 0), self.y))
-        if self.player:
+        self.screen.blit(self.disp, (self.x - self.width/2, self.y))
+        if self.player == 0:
             pygame.draw.circle(self.screen, (255, 0, 0), (self.cx, self.y - 50), 20)
 
     def takeHit(self, x, y, dmg, opp=None):
