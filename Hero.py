@@ -25,11 +25,11 @@ class Hero:
         except:
             pass
         try:
-            self.atksnd = pygame.mixer.Sound("fisty" + "atk.wav")
+            self.atksnd = pygame.mixer.Sound(name.lower().replace(" ", "") + "atk.wav")
         except:
             pass
         try:
-            self.atksnd2 = pygame.mixer.Sound("fisty" + "atk2.wav")
+            self.atksnd2 = pygame.mixer.Sound(name.lower().replace(" ", "") + "atk2.wav")
         except:
             pass
         try:
@@ -41,7 +41,7 @@ class Hero:
         except:
             pass
         try:
-            self.countersnd = pygame.mixer.Sound("fisty" + "counter.wav")
+            self.countersnd = pygame.mixer.Sound(name.lower().replace(" ", "") + "counter.wav")
         except:
             pass
         self.confuse = pygame.mixer.Sound("confuse.wav")
@@ -159,9 +159,9 @@ class Hero:
         if rand:
             max = 4
             r = random.randint(1, max)
-            if r <= (max/2 if self.xspd < 0 else 1) and self.x - self.xspd*3> 200:
+            if r <= (max/2 if self.xspd < 0 else 1) and self.x - self.speed*3 - self.width> 200:
                 self.left = True
-            elif r > max/2 and r <= (max if self.xspd > 0 else max/2+1) and self.x + self.width + self.xspd*3< 1100:
+            elif r > max/2 and r <= (max if self.xspd > 0 else max/2+1) and self.x + self.width + self.speed*3< 1000:
                 self.right = True
             if random.randint(1, 100) == 1:
                 self.jumping = True
@@ -182,8 +182,11 @@ class Hero:
                     self.jumpattackStart = pygame.time.get_ticks()
 
         else:
-            p = Info.heroes[0] if Info.heroes[0] is not self else Info.heroes[1]
-            if self.cx - 1 > p.cx and self.x > 300:
+            p = None
+            for i in Info.heroes:
+                if i is not self and (p == None or (self.cx - i.cx)**2 + (self.cy - i.cy)**2 < (self.cx - p.cx)**2 + (self.cy - p.cy)**2):
+                    p = i
+            if self.cx - 1 > p.cx and self.x - self.speed*3 - self.width> 300:
                 self.left = True
             elif self.cx + 1 < p.cx and self.x + self.width < 1000:
                 self.right = True
@@ -323,6 +326,10 @@ class Hero:
             pygame.draw.circle(self.screen, (255, 0, 0), (self.cx, self.y - 50), 20)
 
     def takeHit(self, x, y, dmg, opp=None):
+        if dmg == None:
+            self.hity = y
+            self.hitx = x
+            return
         if y != 0:
             self.hity = int((y + self.dmg * y / abs(y) / (5 if self.blocking else 1)))
         if x != 0:

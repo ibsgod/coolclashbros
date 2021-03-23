@@ -16,6 +16,8 @@ clock = pygame.time.Clock()
 Info.grounds.append(Ground((width - 900) / 2, height - 200, 900, 100, screen))
 Info.heroes.append(Fisty((width-100)/2, 400, screen, 0))
 Info.heroes.append(Swordy((width+100)/2, 400, screen, 3))
+
+
 for i in Info.heroes:
     Info.hpText[i] = pygame.font.SysFont("Microsoft Yahei UI Light", 35).render("0%", True, (0, 0, 0))
 
@@ -36,7 +38,7 @@ while True:
         i.draw()
         for j in i.projectiles:
             j.draw()
-        pygame.draw.rect(screen, (255, 0, 0), i.hitbox, width=5)
+        # pygame.draw.rect(screen, (255, 0, 0), i.hitbox, width=5)
         screen.blit(Info.hpText[i],(textx, 50))
         textx += 100
 

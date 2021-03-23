@@ -32,6 +32,7 @@ class Projectile:
             if i.hitbox.colliderect(self.hitbox) and i != self.hero and i not in self.hit:
                 self.hit.append(i)
                 i.takeHit(0, -10, 0.2)
+                self.hero.atksnd.play()
 
     def draw(self):
         self.hero.screen.blit(pygame.transform.flip(self.img, self.angle > 90 and self.angle < 270, self.angle > 180), (self.x, self.y))
